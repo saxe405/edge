@@ -11,7 +11,7 @@ forward_matrix <-function(lambda,i,m)
     val = 0;
     for(n in 0:j)
     {
-      val = val + prob_n_arrivals(n+i+m-j0)*prob_n_departures(j0,n);
+      val = val + prob_n_arrivals(n+i+m-j0,lambda)*prob_n_departures(j0,n);
     }
     forward_matrix[j,m+1] = val;
   }
@@ -30,7 +30,7 @@ backward_matrix <- function(lambda,i,m)
     val = 0;
     for(n in 0:m)
     {
-      val = val + prob_n_arrivals(n-m-i+j0)*prob_n_departures(m,n);
+      val = val + prob_n_arrivals(n-m-i+j0,lambda)*prob_n_departures(m,n);
     }
     backward_matrix[m+1,j] = val;
   }
@@ -71,4 +71,30 @@ R0_matrix <- function(lambda,m)
     }
   }
   R0_matrix
+}
+
+######################################################################
+# transition probability from state 'from' to state 'to'
+######################################################################
+prob_transition <- function(from,to,lambda,m,matrix_size,cumulative_prob )
+{
+  prob_transition = 0;
+  in_service = min(from+to,m);
+  in_waiting = max(0,from+to-m);
+  if(to < matrix_size)
+  {
+    for(n in 0:in_service)
+    {
+      prob_transition = prob_transition + prob_n_departures(in_service,n)*prob_n_arrivals(n+to-from,lambda);
+    }
+  } else
+  {
+    for(n in 0:in_service)
+    {
+      temp = prob_n_departures(in_service,n)*(1-cumulative_prob[n+to-from]);
+      prob_transition = prob_transition + temp;
+    }
+  }
+    
+  prob_transition
 }
