@@ -1,7 +1,7 @@
 # the distribution of the arrival process
 ArrivalGF <- function(z,lambda)
 {
-  p = prob_poisson();
+  p = poisson_prob();
   ArrivalGF = p*exp(lambda*(z-1)); 
   gamma = gammaparam()
   ArrivalGF = ArrivalGF + (1-p)*Liz(z,gamma)/Liz(1,gamma)
@@ -12,7 +12,7 @@ ArrivalGF <- function(z,lambda)
 #############################################
 ArrivalGFDerivative <- function(z, lambda)
 {
-  p = prob_poisson()
+  p = poisson_prob()
   gamma = gammaparam();
   ArrivalGFDerivative = p*lambda*exp(lambda*(z-1))+(1-p)*Lizprime(z,gamma)/Liz(1,gamma)
 }
@@ -23,7 +23,7 @@ ArrivalGFDerivative <- function(z, lambda)
 ArrivalGF2d <- function(z,lambda)
 {
   gamma = gammaparam();
-  p = prob_poisson();
+  p = poisson_prob();
   ArrivalGF2d=p*(lambda^2)*exp(lambda*(z-1))+(1-p)*Liz2prime(z,gamma)/Liz(1,gamma)
 }  
 
@@ -45,10 +45,10 @@ prob_n_arrivals<- function(n, lambda)
   if(n >= 0)
   {
     a = starting_powerlaw();
-    p = prob_poisson();
+    p = poisson_prob();
     prob_n_arrivals = p*(exp(-lambda)*(lambda^n))/(factorial(n));
     gamma = gammaparam();
-    if(n >=a )
+    if(n >=a && p < 1)
     {
       prob_n_arrivals = prob_n_arrivals + (1/(n^gamma*Liz(1,gamma)))
     }
@@ -62,7 +62,8 @@ prob_n_departures <- function(j, n)
   prob_n_departures = 0;
   if(n > 0)
   {
-    prob_n_departures = j/n;
+    p = 0.7; 
+    prob_n_departures =  choose(j,n)*((p/j)^n)*((1-p/j)^(j-n)) #   ((1/j)^j)*((1-1/j)^(j-n));
   }
   prob_n_departures
 }
@@ -109,7 +110,7 @@ Liz2prime <- function(z,gamma)
 #poisson probability for mixed distribution
 poisson_prob <- function()
 {
-  poisson_prob = 0.995
+  poisson_prob = 1#0.995
 }
 
 # the starting point of the power law distribution ,i.e., a
