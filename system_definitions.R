@@ -47,9 +47,9 @@ prob_n_arrivals<- function(n, lambda)
     a = starting_powerlaw();
     p = poisson_prob();
     prob_n_arrivals = p*(exp(-lambda)*(lambda^n))/(factorial(n));
-    gamma = gammaparam();
     if(n >=a && p < 1)
     {
+      gamma = gammaparam();
       prob_n_arrivals = prob_n_arrivals + (1/(n^gamma*Liz(1,gamma)))
     }
   }
@@ -60,7 +60,7 @@ prob_n_arrivals<- function(n, lambda)
 prob_n_departures <- function(j, n)
 {
   prob_n_departures = 0;
-  if(n > 0)
+  if(n >= 0)
   {
     p = 0.7; 
     prob_n_departures =  choose(j,n)*((p/j)^n)*((1-p/j)^(j-n)) #   ((1/j)^j)*((1-1/j)^(j-n));
