@@ -1,34 +1,39 @@
 # The aim is to find the stationary distribution
-require("markovchain")
 source('system_definitions.R')
 source('matrix_definitions.R')
-#lambda_vec = seq(0.2,0.6,length.out = 10);
+source('performance_measures.R')
 
-#for(lambda in lambda_vec)
-#{
-  
-#}
-lambda = 0.3
+lambda_vec = seq(0.3,0.8,length.out = 20);
+buffer_size = 30
+m = 10
 
-buffer_size = 40
-m = 10 # a total of buffer_size + m jobs can be in the system, at max m can be in service in at any moment.
-matrix_size = m+buffer_size+1;
-P = matrix(0, nrow = matrix_size, ncol = matrix_size);
-cumulative_prob = rep_len(0,2*matrix_size) # index i contains probability that there are less than i arrivals (not less than equal to)
-cumulative_prob[1] = prob_n_arrivals(0,lambda)
-for( i in 2:length(cumulative_prob))
+eSystemC = {}
+eResponseT = {}
+eBlockingProb = {}
+for(lambda in lambda_vec)
 {
-  cumulative_prob[i] = cumulative_prob[i-1] + prob_n_arrivals(i-1,lambda);
-}
-for(from in 1:matrix_size)
-{
-  for( to in 1:matrix_size)
-  {
-    P[from,to] = prob_transition(from,to,lambda,m, matrix_size, cumulative_prob);
-  }
+  distribution = systemContentDistribution(lambda,m,buffer_size)
+  eSystemC = c(eSystemC, eSystemContent(distribution))
+  eResponseT = c(eResponseT, eResponseTime(lambda,distribution) )
+  eBlockingProb = c(eBlockingProb, eBlockingProbability(lambda,distribution))
 }
 
-A = diag(matrix_size) - P;
-b = matrix(0,nrow = matrix_size, 1)
-x = solve(A,b)
+filename = "SystemContent_lambda.pdf";
+pdf(filename);
+ylim = c(0,max(eSystemC));
+plot(lambda_vec,eSystemC, type = "l", xlab = "arrival rate of requests", ylab = "Number of unserved requests",col= "blue", cex.lab=1.5, lwd=3.5, ylim = ylim );
+#lines(rhos,result_vec, type = "l", xlab = "load", ylab = measure,col= plot_colors[j], cex.lab=1.5, lwd=2.5, lty = lty );
+#legend(legend_loc[i],legend=tau_names,col=plot_colors, lty=1:3, cex=0.8, title="", text.font=4.5, bg='lightblue');
+dev.off();
 
+filename = "ResponseTime_lambda.pdf";
+pdf(filename);
+ylim = c(0,max(eResponseT));
+plot(lambda_vec,eResponseT, type = "l", xlab = "arrival rate of requests", ylab = "Latency (s)",col= "blue", cex.lab=1.5, lwd=3.5, ylim = ylim );
+dev.off()
+
+filename = "Blockingprobability_lambda.pdf";
+pdf(filename);
+ylim = c(0,max(eBlockingProb));
+plot(lambda_vec,eBlockingProb, type = "l", xlab = "arrival rate of requests", ylab = "Probability request rejected",col= "red", cex.lab=1.5, lwd=3.5, ylim = ylim );
+dev.off()

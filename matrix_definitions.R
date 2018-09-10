@@ -74,13 +74,24 @@ R0_matrix <- function(lambda,m)
 }
 
 ######################################################################
+#
+######################################################################
+cumulative_probability <- function(index, cumulative_prob )
+{
+  cumulative_probability = 0;
+  if( index > 0)
+  {
+    cumulative_probability = cumulative_prob[index]
+  }
+  cumulative_probability = cumulative_probability
+}
+######################################################################
 # transition probability from state 'from' to state 'to'
 ######################################################################
 prob_transition <- function(from,to,lambda,m,matrix_size,cumulative_prob )
 {
   prob_transition = 0;
-  in_service = min(from+to,m);
-  in_waiting = max(0,from+to-m);
+  in_service = min(from-1,m);
   if(to < matrix_size)
   {
     for(n in 0:in_service)
@@ -91,7 +102,7 @@ prob_transition <- function(from,to,lambda,m,matrix_size,cumulative_prob )
   {
     for(n in 0:in_service)
     {
-      temp = prob_n_departures(in_service,n)*(1-cumulative_prob[n+to-from]);
+      temp = prob_n_departures(in_service,n)*(1-cumulative_probability(n+to-from,cumulative_prob));
       prob_transition = prob_transition + temp;
     }
   }
